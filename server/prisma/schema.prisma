@@ -1,0 +1,40 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+  engineType = "binary"
+}
+
+model User {
+  id        String          @id @default(uuid())
+  email     String          @unique
+  name      String?
+  providers Provider[]
+  createdAt DateTime        @default(now())
+}
+
+model Provider {
+  id             String     @id @default(uuid())
+  provider       String
+  providerUserId String
+  accessToken    String?
+  refreshToken   String?
+  expiresAt      DateTime?
+  user           User       @relation(fields: [userId], references: [id])
+  userId         String
+  createdAt      DateTime   @default(now())
+    
+  @@unique([provider, providerUserId])
+
+}
+
+model Session {
+  sid     String   @id
+  sess    Json
+  expire  DateTime
+
+  @@index([expire], name: "IDX_session_expire")
+}
