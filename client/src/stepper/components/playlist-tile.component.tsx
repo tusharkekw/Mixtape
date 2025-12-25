@@ -1,19 +1,32 @@
-import { Collapse, Stack, Typography } from '@mui/material';
+import { Checkbox, Collapse, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Playlist } from 'types/playlist-item.types';
+import { Playlist, PlaylistItemType } from 'types/playlist-item.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import PlaylistItemList from './playlist-item-list.component';
 
-const PlaylistTile: React.FC<{ platform: string; playlist: Playlist }> = ({
-  platform,
-  playlist,
-}) => {
+const PlaylistTile: React.FC<{
+  platform: string;
+  playlist: Playlist;
+  isSelected: boolean;
+  onPlaylistSelect: (playlist: Playlist, selected: boolean) => void;
+  onItemSelect: (
+    playlist: Playlist,
+    item: PlaylistItemType,
+    playlistItems: PlaylistItemType[],
+    selected: boolean,
+  ) => void;
+  selectedItems: string | string[];
+}> = ({ platform, playlist, isSelected, onPlaylistSelect, onItemSelect, selectedItems }) => {
   const { id, title, thumbnail } = playlist;
   const [expanded, setExpanded] = useState(false);
 
   const handleClick = () => {
     setExpanded(!expanded);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onPlaylistSelect(playlist, event.target.checked);
   };
 
   return (
@@ -34,6 +47,11 @@ const PlaylistTile: React.FC<{ platform: string; playlist: Playlist }> = ({
         }}
         spacing={2}
       >
+        <Checkbox
+          checked={!!isSelected}
+          onChange={handleChange}
+          inputProps={{ 'aria-label': 'controlled' }}
+        />
         <Stack
           onClick={handleClick}
           direction="row"
@@ -68,7 +86,18 @@ const PlaylistTile: React.FC<{ platform: string; playlist: Playlist }> = ({
             borderLeft: '2px solid rgba(0, 0, 0, 0.12)',
           }}
         >
-          {expanded && <PlaylistItemList platform={platform} playlistId={id} />}
+          {expanded && (
+            <PlaylistItemList
+              platform={platform}
+              playlistId={id}
+              onItemSelect={(
+                item: PlaylistItemType,
+                playlistItems: PlaylistItemType[],
+                selected: boolean,
+              ) => onItemSelect(playlist, item, playlistItems, selected)}
+              selectedItems={selectedItems}
+            />
+          )}
         </Stack>
       </Collapse>
     </>

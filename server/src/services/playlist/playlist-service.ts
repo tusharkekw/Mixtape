@@ -69,12 +69,15 @@ const fetchSpotifyPlaylist = async (accessToken: string): Promise<Playlist[]> =>
     params: {},
   });
 
-  return data.items?.map((playlist) => ({
-    id: playlist.id,
-    title: playlist.name,
-    thumbnail: playlist.images?.[0]?.url ?? "",
-    platform: "spotify",
-  }));
+  return data.items?.map((playlist) => {
+    return {
+      id: playlist.id,
+      title: playlist.name,
+      thumbnail: playlist.images?.[0]?.url ?? "",
+      platform: "spotify",
+      itemCount: playlist?.tracks?.total,
+    };
+  });
 };
 
 export const getHeaders = (accessToken: string) => {
@@ -88,6 +91,7 @@ export type SpotifyPlaylistItem = {
   id: string;
   name: string;
   images: { url: string }[];
+  tracks?: { total?: number };
 };
 
 export type SpotifyPlaylistResponse = {
@@ -112,5 +116,6 @@ export type Playlist = {
   id: string;
   title: string;
   thumbnail: string;
+  itemCountr?: number;
   platform: "google" | "spotify";
 };

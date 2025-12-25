@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import SelectProviders from './select-provider.components';
 import PlaylistSelector from './playlist-selector.component';
 import { Playlist, PlaylistItemType } from 'types/playlist-item.types';
+import FinalizeTransfer from './finalize-transfer.component';
 
 type SelectionState = {
   [playlistId: string]: {
@@ -101,8 +102,7 @@ const TransferComponent = () => {
           />
         );
       case 3:
-        return <></>;
-      // return <FinalizeTransfer transferState={transferState} />;
+        return <FinalizeTransfer transferState={transferState} />;
       case 4:
         return <>Enter New Playlist Name</>;
     }
@@ -122,6 +122,7 @@ const TransferComponent = () => {
       </Stepper>
       <Box>
         <Button onClick={handleBack}>Back</Button>
+        <Button onClick={handleNext}>Next</Button>
       </Box>
       <Box sx={{ width: '50%', mx: 'auto' }}>{renderStepContent()}</Box>
     </Box>

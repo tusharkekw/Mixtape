@@ -6,7 +6,13 @@ import PlaylistItem from './playlist-item.component';
 const PlaylistItemList: React.FC<{
   platform: string;
   playlistId: string;
-}> = ({ platform, playlistId }) => {
+  onItemSelect: (
+    item: PlaylistItemType,
+    playlistItems: PlaylistItemType[],
+    selected: boolean,
+  ) => void;
+  selectedItems: string | string[];
+}> = ({ platform, playlistId, onItemSelect, selectedItems }) => {
   const {
     data: playlistItems,
     isLoading,
@@ -27,9 +33,17 @@ const PlaylistItemList: React.FC<{
 
   return (
     <>
-      {playlistItems?.map((item: PlaylistItemType) => (
-        <PlaylistItem playlistItem={item} />
-      ))}
+      {playlistItems?.map((item: PlaylistItemType) => {
+        const isSelected =
+          typeof selectedItems === 'string' ? true : selectedItems.includes(item.id);
+        return (
+          <PlaylistItem
+            playlistItem={item}
+            onItemSelect={(selected) => onItemSelect(item, playlistItems, selected)}
+            isSelected={isSelected}
+          />
+        );
+      })}
     </>
   );
 };

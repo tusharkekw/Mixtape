@@ -1,12 +1,24 @@
-import { Stack, Typography } from '@mui/material';
+import { Checkbox, Stack, Typography } from '@mui/material';
 import { PlaylistItemType } from 'types/playlist-item.types';
 
 const PlaylistItem: React.FC<{
   playlistItem: PlaylistItemType;
-}> = ({ playlistItem }) => {
+  isSelected: boolean;
+  onItemSelect: (selected: boolean) => void;
+}> = ({ playlistItem, isSelected, onItemSelect }) => {
   const { title, thumbnail, id } = playlistItem;
+
+  const handleChange = () => {
+    console.log(isSelected);
+    onItemSelect(!isSelected);
+  };
   return (
     <Stack direction="row">
+      <Checkbox
+        checked={isSelected}
+        onChange={handleChange}
+        inputProps={{ 'aria-label': 'controlled' }}
+      />
       <Stack
         key={playlistItem.id}
         direction="row"

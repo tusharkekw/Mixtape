@@ -2,6 +2,7 @@ export type Playlist = {
   id: string;
   title: string;
   thumbnail: string;
+  itemCount: number;
   platform: 'spotify' | 'google';
 };
 
