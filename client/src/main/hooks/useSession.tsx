@@ -4,9 +4,9 @@ const useSession = () => {
   const account = useGetAccount();
 
   return {
-    user: account.data as any, //TODO
+    user: account.data?.user,
     isLoading: account.isLoading,
-    hasSession: !!(account as any)?.data?.data?.authenticated,
+    hasSession: account.data?.isAuthenticated,
     isError: account.isError,
   };
 };

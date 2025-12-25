@@ -11,6 +11,7 @@ import dotenv from "dotenv";
 import "./auth/google";
 import "./auth/passport";
 import "./auth/spotify";
+import fetchRoutes from "./routes/fetchRoutes";
 
 const app = express();
 dotenv.config();
@@ -51,6 +52,7 @@ app.use((req, res, next) => {
 });
 app.use("/auth", authRoutes);
 app.use("/connect", connectRoutes);
+app.use("/fetch", fetchRoutes);
 
 app.listen(3001, () => {
   console.log("server running on 3001");

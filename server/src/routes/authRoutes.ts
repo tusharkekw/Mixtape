@@ -14,15 +14,27 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "http://127.0.0.1:3000/login-failed" }),
   async (req, res) => {
-    res.redirect("http://127.0.0.1:3000/home");
+    res.redirect("http://127.0.0.1:3000/transfer");
   }
 );
 
 router.get("/me", (req, res) => {
   if (req.isAuthenticated()) {
-    res.json({ authenticated: true, user: req.user });
+    res.json({
+      success: true,
+      data: {
+        isAuthenticated: true,
+        user: {
+          ...req.user,
+          providers: (req.user as any).providers.map((provider: any) => ({
+            id: provider.id,
+            platform: provider.provider,
+          })),
+        },
+      },
+    });
   } else {
-    res.json({ authenticated: false, user: null });
+    res.json({ success: true, data: { isAuthenticated: false, user: null } });
   }
 });
 

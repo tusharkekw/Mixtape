@@ -7,7 +7,12 @@ passport.serializeUser((user: any, done) => {
 
 passport.deserializeUser(async (id: string, done) => {
   try {
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        providers: true,
+      },
+    });
     done(null, user); // Attach full user object to req.user
   } catch (err) {
     done(err, null);

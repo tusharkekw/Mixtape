@@ -31,7 +31,7 @@ passport.use(
             accessToken: accessToken,
             refreshToken: refreshToken,
             userId: (req.user as any)?.id,
-            expiresAt: new Date(expires_in),
+            expiresAt: new Date(Date.now() + expires_in * 1000),
           },
           update: {
             accessToken: accessToken,
