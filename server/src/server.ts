@@ -12,6 +12,7 @@ import "./auth/google";
 import "./auth/passport";
 import "./auth/spotify";
 import fetchRoutes from "./routes/fetchRoutes";
+import connectPgSimple from "connect-pg-simple";
 
 const app = express();
 dotenv.config();
@@ -23,12 +24,14 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+const PgSessionStore = connectPgSimple(session);
+
 app.use(
   session({
-    // store: new pgStore({
-    //   conString: process.env.DATABASE_URL, // Your Supabase connection string
-    //   createTableIfMissing: false, // We created it manually
-    // }),
+    store: new PgSessionStore({
+      conString: process.env.DATABASE_URL,
+      tableName: "Session",
+    }),
     secret: process.env.SESSION_SECRET!,
     resave: false,
     saveUninitialized: false,
