@@ -50,6 +50,7 @@ app.use((req, res, next) => {
   );
   next();
 });
+
 app.use("/auth", authRoutes);
 app.use("/connect", connectRoutes);
 app.use("/fetch", fetchRoutes);

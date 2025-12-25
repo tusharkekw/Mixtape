@@ -1,37 +1,41 @@
-import { Avatar, Box, CircularProgress, Typography } from "@mui/material";
-import useGetPlaylistItems from "hooks/useGetPlaylistItems";
+import { Stack, Typography } from '@mui/material';
+import { PlaylistItemType } from 'types/playlist-item.types';
 
-const PlaylistItem: React.FC<{ provider?: string, playlistId: string }> = ({provider, playlistId }) => {
-  const { data: playlistItems, isLoading, 
-    
-   } = useGetPlaylistItems(provider,playlistId);
-
-  if (isLoading) return <CircularProgress />;
-  // if (error) return <Typography color="error">Failed to load songs</Typography>;
-
+const PlaylistItem: React.FC<{
+  playlistItem: PlaylistItemType;
+}> = ({ playlistItem }) => {
+  const { title, thumbnail, id } = playlistItem;
   return (
-    <Box display="flex" flexDirection="column" gap={2} mt={1}>
-    {playlistItems.map((item, index: number) => (
-      <Box key={index} display="flex" alignItems="center">
-        {item.thumbnail && (
-          <Avatar
-            src={item.thumbnail}
-            alt={item.title}
-            sx={{ width: 40, height: 40, mr: 2 }}
-          />
-        )}
-        <Box>
-          <Typography variant="body1" fontWeight="bold">
-            {item.title}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {item.artist}
-          </Typography>
-        </Box>
-      </Box>
-    ))}
-  </Box>
+    <Stack direction="row">
+      <Stack
+        key={playlistItem.id}
+        direction="row"
+        spacing={2}
+        sx={{
+          py: 0.5,
+          px: 1,
+          borderRadius: 1,
+          '&:hover': {
+            bgcolor: 'rgba(0, 0, 0, 0.04)',
+          },
+        }}
+      >
+        <img
+          src={playlistItem.thumbnail}
+          style={{
+            height: '60px',
+            width: '60px',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            borderRadius: '4px',
+          }}
+          alt="thumbnail"
+        />
+        <Typography variant="body2" fontWeight="600">
+          {title}
+        </Typography>
+      </Stack>
+    </Stack>
   );
 };
-
 export default PlaylistItem;
