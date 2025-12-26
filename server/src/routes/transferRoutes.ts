@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import prisma from "../lib/prisma";
+import { createConversionTask } from "../lib/cloudTasks";
 
 const router = Router();
 
@@ -20,9 +21,11 @@ router.post("/start", async (req, res) => {
       },
     });
 
+    await createConversionTask(job.id);
+
     return res.json({ success: true, data: { jobId: job.id } });
   } catch (error) {
-    console.log("failed to create job");
+    console.log("failed to create job", error);
     return res.status(500).json({
       success: false,
       error: "Internal server error",
