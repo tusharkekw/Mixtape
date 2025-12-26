@@ -16,9 +16,11 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Collapse } from '@mui/material';
 import { PlaylistItemType } from 'types/playlist-item.types';
+import useStartTransfer from 'stepper/hooks/useStartTransfer';
+import { TransferPayload } from 'types/types';
 
 // Transfer modes
-enum TransferMode {
+export enum TransferMode {
   UNIFIED = 'unified',
   INDIVIDUAL = 'individual',
 }
@@ -31,6 +33,7 @@ const FinalizeTransfer: React.FC<{
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [unifiedPlaylistName, setUnifiedPlaylistName] = useState(newPlaylistName || '');
   const [transferMode, setTransferMode] = useState<TransferMode>(TransferMode.INDIVIDUAL);
+  const { mutate: startTransfer } = useStartTransfer();
 
   const handlePlaylistNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUnifiedPlaylistName(event.target.value);
@@ -38,6 +41,7 @@ const FinalizeTransfer: React.FC<{
 
   const handleTransferModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTransferMode(event.target.value as TransferMode);
+    setUnifiedPlaylistName('');
   };
 
   const handleToggleExpand = (playlistId: string) => {
@@ -65,7 +69,6 @@ const FinalizeTransfer: React.FC<{
   }, 0);
 
   const handleTransfer = () => {
-    // Implement the transfer logic based on selected mode
     if (transferMode === TransferMode.UNIFIED) {
       console.log('Creating unified playlist:', unifiedPlaylistName);
       console.log('With tracks from:', selectedPlaylists);
@@ -75,6 +78,16 @@ const FinalizeTransfer: React.FC<{
         selectedPlaylists,
       );
     }
+
+    const payload: TransferPayload = {
+      source: transferState.sourcePlatform!,
+      destination: transferState.destinationPlatform!,
+      selectedPlaylist: transferState.selectedPlaylist,
+      transferMode,
+      playlistName: unifiedPlaylistName,
+    };
+
+    startTransfer(payload);
   };
 
   const isTransferButtonDisabled =

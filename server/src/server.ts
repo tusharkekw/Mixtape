@@ -13,6 +13,7 @@ import "./auth/passport";
 import "./auth/spotify";
 import fetchRoutes from "./routes/fetchRoutes";
 import connectPgSimple from "connect-pg-simple";
+import transferRoutes from "./routes/transferRoutes";
 
 const app = express();
 dotenv.config();
@@ -57,6 +58,7 @@ app.use((req, res, next) => {
 app.use("/auth", authRoutes);
 app.use("/connect", connectRoutes);
 app.use("/fetch", fetchRoutes);
+app.use("/transfer", transferRoutes);
 
 app.listen(3001, () => {
   console.log("server running on 3001");

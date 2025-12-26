@@ -1,11 +1,11 @@
-import { Box, Button, Step, StepLabel, Stepper, Typography } from '@mui/material';
+import { Box, Button, Stack, Step, StepLabel, Stepper } from '@mui/material';
 import React, { useState } from 'react';
 import SelectProviders from './select-provider.components';
 import PlaylistSelector from './playlist-selector.component';
 import { Playlist, PlaylistItemType } from 'types/playlist-item.types';
 import FinalizeTransfer from './finalize-transfer.component';
 
-type SelectionState = {
+export type SelectionState = {
   [playlistId: string]: {
     playlistData: Playlist;
     isPlaylistSelected: boolean;
@@ -109,8 +109,7 @@ const TransferComponent = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h4">Transfer Playlists</Typography>
+    <Box sx={{ width: '50%', mx: 'auto' }}>
       <Stepper activeStep={activeStep}>
         {steps.map((label) => {
           return (
@@ -120,11 +119,11 @@ const TransferComponent = () => {
           );
         })}
       </Stepper>
-      <Box>
+      <Stack direction="row" justifyContent="space-between">
         <Button onClick={handleBack}>Back</Button>
         <Button onClick={handleNext}>Next</Button>
-      </Box>
-      <Box sx={{ width: '50%', mx: 'auto' }}>{renderStepContent()}</Box>
+      </Stack>
+      {renderStepContent()}
     </Box>
   );
 };

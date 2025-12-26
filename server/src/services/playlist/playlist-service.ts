@@ -10,7 +10,7 @@ export const fetchPlaylist = async (req: Request, res: Response) => {
     const user = req.user as any;
 
     if (!user) {
-      return res.status(401).json({ msg: "User is not Logged in" });
+      return res.status(401).json({ success: false, error: "User is not Logged in" });
     }
 
     const accessToken = user?.providers.find(

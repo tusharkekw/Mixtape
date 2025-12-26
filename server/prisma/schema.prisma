@@ -13,6 +13,7 @@ model User {
   email     String          @unique
   name      String?
   providers Provider[]
+  jobs      ConversionJob[]
   createdAt DateTime        @default(now())
 }
 
@@ -37,4 +38,19 @@ model Session {
   expire  DateTime
 
   @@index([expire], name: "IDX_session_expire")
+}
+
+model ConversionJob {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  
+  data            Json?  
+  status          String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  progress        Int      @default(0)
+  result          String?  // The new playlist ID or error message
+  resultData      Json?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
