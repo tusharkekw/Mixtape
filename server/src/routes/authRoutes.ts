@@ -6,6 +6,8 @@ const router = Router();
 router.get(
   "/google",
   passport.authenticate("google", {
+    prompt: "consent",
+    accessType: "offline",
     scope: ["email", "profile", "openid", "https://www.googleapis.com/auth/youtube"],
   })
 );
