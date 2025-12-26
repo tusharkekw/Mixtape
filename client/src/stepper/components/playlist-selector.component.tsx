@@ -65,22 +65,35 @@ const PlaylistSelector: React.FC<{
       };
     } else {
       let currentSelectedPlaylistItems = currentPlaylist.selectedItems;
-      let newPlaylistItems = currentSelectedPlaylistItems.filter(
-        (playlistItem) => playlistItem.id !== item.id,
-      );
 
-      if (newPlaylistItems.length === 0 && currentPlaylist.isPlaylistSelected) {
-        updatedPlaylists[playlistId] = {
-          isPlaylistSelected: false,
-          playlistData: playlist,
-          selectedItems: [],
-        };
-      } else {
+      if (currentSelectedPlaylistItems.length === 0 && currentPlaylist.isPlaylistSelected) {
+        //complete playlist was selected previously
         updatedPlaylists[playlistId] = {
           isPlaylistSelected: true,
           playlistData: playlist,
-          selectedItems: newPlaylistItems,
+          selectedItems: [
+            ...playlistItems.filter((playlistItem) => playlistItem.id !== item.id),
+          ],
         };
+      } else {
+        let newPlaylistItems = currentSelectedPlaylistItems.filter(
+          (playlistItem) => playlistItem.id !== item.id,
+        );
+
+        if (newPlaylistItems.length === 0 && currentPlaylist.isPlaylistSelected) {
+          ////last element was removed
+          updatedPlaylists[playlistId] = {
+            isPlaylistSelected: false,
+            playlistData: playlist,
+            selectedItems: [],
+          };
+        } else {
+          updatedPlaylists[playlistId] = {
+            isPlaylistSelected: true,
+            playlistData: playlist,
+            selectedItems: newPlaylistItems,
+          };
+        }
       }
     }
 

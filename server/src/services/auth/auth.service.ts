@@ -21,7 +21,7 @@ export const refreshAccessToken = async (providerId: string, provider: string, r
 };
 
 const updateProvider = async (providerId: string, accessToken: string, expiresAt: any) => {
-  const provider = await prisma.provider.update({
+  await prisma.provider.update({
     where: {
       id: providerId,
     },
@@ -30,8 +30,6 @@ const updateProvider = async (providerId: string, accessToken: string, expiresAt
       expiresAt,
     },
   });
-
-  console.log(provider);
 };
 
 const refreshGoogleAccessToken = async (
