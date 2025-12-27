@@ -30,7 +30,7 @@ const TransferProgress: React.FC = () => {
   }
 
   if (isError) {
-    <>Error Getting Transfer Progress</>;
+    return <>Error Getting Transfer Progress</>;
   }
 
   const progress = data?.progress;

@@ -1,7 +1,11 @@
 import { Router } from "express";
 import passport from "passport";
 
+import { ensureAuthenticated } from "../auth/middleware";
+
 const router = Router();
+
+router.use(ensureAuthenticated);
 
 router.get(
   "/spotify",

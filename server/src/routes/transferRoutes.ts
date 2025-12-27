@@ -2,19 +2,31 @@ import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import prisma from "../lib/prisma";
 import { createConversionTask } from "../lib/cloudTasks";
+import { TransferPayloadSchema } from "../utils/validation";
+import { ensureAuthenticated } from "../auth/middleware";
 
 const router = Router();
 
-router.post("/start", async (req, res) => {
-  const {} = req.body;
-  //TODO validate/sanitize the data
+router.post("/start", ensureAuthenticated, async (req, res) => {
+  const validationResult = TransferPayloadSchema.safeParse(req.body);
+
+  if (!validationResult.success) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid payload",
+      details: validationResult.error.format(),
+    });
+  }
+
+  const { data } = validationResult;
+
   try {
     const job = await prisma.conversionJob.create({
       data: {
-        userId: (req?.user as any)?.id,
+        userId: (req.user as any).id,
         progress: 0,
         status: "PENDING",
-        data: req.body,
+        data: data as any, // Prisma expects JSON, casting for simplicity
       },
     });
 
@@ -30,23 +42,32 @@ router.post("/start", async (req, res) => {
   }
 });
 
-router.get("/progress/:jobId", async (req, res) => {
+router.get("/progress/:jobId", ensureAuthenticated, async (req, res) => {
   const { jobId } = req.params;
+  const userId = (req.user as any).id;
 
   try {
     const job = await prisma.conversionJob.findFirst({
       where: {
         id: jobId,
+        userId: userId,
       },
     });
+
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        error: "Job not found or unauthorized",
+      });
+    }
 
     return res.json({
       success: true,
       data: {
-        jobId: job?.id,
-        progress: job?.progress,
-        isJobCompleted: job?.status === "COMPLETED",
-        responseJobData: job?.resultData,
+        jobId: job.id,
+        progress: job.progress,
+        isJobCompleted: job.status === "COMPLETED",
+        responseJobData: job.resultData,
       },
     });
   } catch (error) {
@@ -59,3 +80,4 @@ router.get("/progress/:jobId", async (req, res) => {
 });
 
 export default router;
+

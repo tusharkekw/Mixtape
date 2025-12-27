@@ -2,10 +2,19 @@ import { Router } from "express";
 import prisma from "../lib/prisma";
 import { processConversionLogic } from "../services/conversion/conversion-service";
 import { updateConversionJobStatus } from "../utils/prismaUtils";
+import { verifyCloudTaskRequest } from "../utils/security";
 
 const router = Router();
 
 router.post("/process", async (req, res) => {
+  const isAuthorized = await verifyCloudTaskRequest(req.headers.authorization);
+  const isDev = process.env.NODE_ENV === "development";
+
+  // Allow bypass in dev mode if needed, otherwise enforce
+  if (!isAuthorized && !isDev) {
+    return res.status(401).json({ success: false, error: "Unauthorized" });
+  }
+
   const { jobId } = req.body;
 
   if (!jobId) {
@@ -33,8 +42,7 @@ router.post("/process", async (req, res) => {
 
   await updateConversionJobStatus(jobId);
 
-  //remove this later
-  return res.json({ error: "Updated successfully" });
+  return res.json({ success: true, message: "Updated successfully" });
 });
 
 export default router;
