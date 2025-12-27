@@ -2,7 +2,6 @@ import axios from "axios";
 import { PlatformAdapter } from "../../type";
 import { fetchSpotifyPlaylistItems } from "../playlist/playlist-item.service";
 import { getHeaders } from "../playlist/playlist-service";
-import { access } from "node:fs";
 
 const BASE_SPOTIFY_URL = "https://api.spotify.com/v1";
 

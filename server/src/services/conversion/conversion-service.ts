@@ -68,7 +68,7 @@ export const processConversionLogic = async (job: ConversionJob) => {
         // -> iterate over playlistItems
         for (let item of itemsToBeConverted) {
           // -> search for same item on destination platform
-          const query = item.title + (item?.artist ?? "");
+          const query = item.title + " " + (item?.artist ?? "");
           let destinationItemId = await destinationAdapter.searchTrack(destinationAccessToken, query);
           // -> add to destination playlist
 
@@ -77,6 +77,8 @@ export const processConversionLogic = async (job: ConversionJob) => {
             destinationPlaylistId,
             destinationItemId
           );
+
+          console.log("added track");
           convertedTracks++;
 
           if (convertedTracks % 5 === 0) {
