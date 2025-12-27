@@ -13,37 +13,62 @@ const PlaylistItem: React.FC<{
     onItemSelect(!isSelected);
   };
   return (
-    <Stack direction="row">
+    <Stack 
+      direction="row" 
+      spacing={1.5}
+      sx={{
+        alignItems: 'center',
+        py: 1,
+        px: 1.5,
+        borderRadius: 1.5,
+        transition: 'background-color 0.2s ease',
+        '&:hover': {
+          bgcolor: '#ffffff',
+        },
+      }}
+    >
       <Checkbox
         checked={isSelected}
         onChange={handleChange}
         inputProps={{ 'aria-label': 'controlled' }}
+        size="small"
+        sx={{
+          color: '#9ca3af',
+          '&.Mui-checked': {
+            color: '#3b82f6',
+          },
+        }}
       />
       <Stack
-        key={playlistItem.id}
         direction="row"
         spacing={2}
         sx={{
-          py: 0.5,
-          px: 1,
-          borderRadius: 1,
-          '&:hover': {
-            bgcolor: 'rgba(0, 0, 0, 0.04)',
-          },
+          alignItems: 'center',
+          flexGrow: 1,
+          minWidth: 0,
         }}
       >
         <img
           src={playlistItem.thumbnail}
           style={{
-            height: '60px',
-            width: '60px',
+            height: '48px',
+            width: '48px',
             objectFit: 'cover',
             objectPosition: 'center',
-            borderRadius: '4px',
+            borderRadius: '6px',
           }}
           alt="thumbnail"
         />
-        <Typography variant="body2" fontWeight="600">
+        <Typography 
+          variant="body2" 
+          fontWeight={500}
+          sx={{
+            color: '#374151',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
           {title}
         </Typography>
       </Stack>

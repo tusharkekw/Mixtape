@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Stack } from '@mui/material';
+import { Button, Stack, Box, Typography } from '@mui/material';
 import useSession from 'main/hooks/useSession';
 import SelectableCard from './selectable-card.component';
 
@@ -37,12 +37,31 @@ const SelectProviders: React.FC<{
   };
 
   return (
-    <>
-      {title}
-      <Stack direction="row" spacing={2}>
+    <Box sx={{ py: 3 }}>
+      <Typography 
+        variant="h5" 
+        sx={{ 
+          mb: 4, 
+          fontWeight: 600,
+          color: '#1f2937',
+          textAlign: 'center',
+        }}
+      >
+        {title}
+      </Typography>
+      <Stack 
+        direction="row" 
+        spacing={3}
+        sx={{ 
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: 3,
+        }}
+      >
         {platforms.map((platform) => {
           return (
             <SelectableCard
+              key={platform.id}
               platform={platform}
               isSelected={false}
               onSelect={(id: string) => {
@@ -53,7 +72,7 @@ const SelectProviders: React.FC<{
           );
         })}
       </Stack>
-    </>
+    </Box>
   );
 };
 

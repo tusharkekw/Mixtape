@@ -109,21 +109,71 @@ const TransferComponent = () => {
   };
 
   return (
-    <Box sx={{ width: '50%', mx: 'auto' }}>
-      <Stepper activeStep={activeStep}>
-        {steps.map((label) => {
-          return (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          );
-        })}
-      </Stepper>
-      <Stack direction="row" justifyContent="space-between">
-        <Button onClick={handleBack}>Back</Button>
-        <Button onClick={handleNext}>Next</Button>
-      </Stack>
-      {renderStepContent()}
+    <Box sx={{ width: '100%', maxWidth: '900px', mx: 'auto', mt: 4, px: 3 }}>
+      <Box 
+        sx={{ 
+          backgroundColor: '#ffffff',
+          borderRadius: 3,
+          p: 4,
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        }}
+      >
+        <Stepper 
+          activeStep={activeStep}
+          sx={{
+            mb: 4,
+            '& .MuiStepLabel-label': {
+              fontSize: '0.95rem',
+              fontWeight: 500,
+            },
+            '& .MuiStepIcon-root': {
+              fontSize: '1.75rem',
+            },
+          }}
+        >
+          {steps.map((label) => {
+            return (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            );
+          })}
+        </Stepper>
+        
+        {renderStepContent()}
+        
+        <Stack 
+          direction="row" 
+          justifyContent="space-between"
+          sx={{ mt: 4 }}
+        >
+          <Button 
+            onClick={handleBack}
+            disabled={activeStep === 0}
+            sx={{
+              px: 3,
+              py: 1,
+              color: '#6b7280',
+              '&:hover': {
+                backgroundColor: '#f3f4f6',
+              },
+            }}
+          >
+            Back
+          </Button>
+          <Button 
+            onClick={handleNext}
+            disabled={activeStep === steps.length - 1}
+            variant="contained"
+            sx={{
+              px: 3,
+              py: 1,
+            }}
+          >
+            Next
+          </Button>
+        </Stack>
+      </Box>
     </Box>
   );
 };

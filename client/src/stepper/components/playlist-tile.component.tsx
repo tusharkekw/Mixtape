@@ -1,4 +1,4 @@
-import { Checkbox, Collapse, Stack, Typography } from '@mui/material';
+import { Checkbox, Collapse, Stack, Typography, Card, Box, Chip } from '@mui/material';
 import { useState } from 'react';
 import { Playlist, PlaylistItemType } from 'types/playlist-item.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -30,20 +30,26 @@ const PlaylistTile: React.FC<{
   };
 
   return (
-    <>
+    <Card
+      variant="outlined"
+      sx={{
+        borderRadius: 2,
+        border: '1px solid #e5e7eb',
+        overflow: 'hidden',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+        },
+      }}
+    >
       <Stack
         direction="row"
         sx={{
           alignItems: 'center',
-          justifyContent: 'center',
-          padding: 1,
-          borderRadius: 1,
-          bgcolor: expanded ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
-          cursor: 'pointer',
-          '&:hover': {
-            bgcolor: 'rgba(0, 0, 0, 0.08)',
-          },
-          transition: 'background-color 0.3s ease',
+          p: 2,
+          bgcolor: isSelected ? '#f0f9ff' : '#ffffff',
+          borderBottom: expanded ? '1px solid #e5e7eb' : 'none',
+          transition: 'background-color 0.2s ease',
         }}
         spacing={2}
       >
@@ -51,39 +57,89 @@ const PlaylistTile: React.FC<{
           checked={!!isSelected}
           onChange={handleChange}
           inputProps={{ 'aria-label': 'controlled' }}
+          sx={{
+            color: '#9ca3af',
+            '&.Mui-checked': {
+              color: '#3b82f6',
+            },
+          }}
         />
-        <Stack
-          onClick={handleClick}
-          direction="row"
-          spacing="2"
-          width="100%"
-          justifyContent="space-between"
+        <Box
+          sx={{
+            width: 64,
+            height: 64,
+            borderRadius: 2,
+            overflow: 'hidden',
+            flexShrink: 0,
+          }}
         >
           <img
             src={thumbnail}
             style={{
-              height: '60px',
-              width: '60px',
+              width: '100%',
+              height: '100%',
               objectFit: 'cover',
               objectPosition: 'center',
-              borderRadius: '4px',
             }}
             alt="thumbnail"
           />
-          <Typography variant="body1" fontWeight="600">
+        </Box>
+        <Stack
+          onClick={handleClick}
+          sx={{
+            flexGrow: 1,
+            cursor: 'pointer',
+            minWidth: 0,
+          }}
+        >
+          <Typography 
+            variant="body1" 
+            fontWeight={600}
+            sx={{
+              color: '#1f2937',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
             {title}
           </Typography>
+          {isSelected && (
+            <Chip
+              label="Selected"
+              size="small"
+              sx={{
+                mt: 0.5,
+                height: 20,
+                fontSize: '0.7rem',
+                bgcolor: '#dbeafe',
+                color: '#1e40af',
+                fontWeight: 600,
+                width: 'fit-content',
+              }}
+            />
+          )}
         </Stack>
-        {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+        <Box
+          onClick={handleClick}
+          sx={{
+            cursor: 'pointer',
+            color: '#6b7280',
+            display: 'flex',
+            alignItems: 'center',
+            '&:hover': {
+              color: '#3b82f6',
+            },
+          }}
+        >
+          {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+        </Box>
       </Stack>
       <Collapse in={expanded} timeout="auto">
-        <Stack
-          spacing={1}
+        <Box
           sx={{
-            ml: 9,
-            pl: 2,
-            py: 1,
-            borderLeft: '2px solid rgba(0, 0, 0, 0.12)',
+            bgcolor: '#f9fafb',
+            p: 2,
           }}
         >
           {expanded && (
@@ -98,9 +154,9 @@ const PlaylistTile: React.FC<{
               selectedItems={selectedItems}
             />
           )}
-        </Stack>
+        </Box>
       </Collapse>
-    </>
+    </Card>
   );
 };
 

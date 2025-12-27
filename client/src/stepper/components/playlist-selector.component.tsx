@@ -1,6 +1,6 @@
 import useGetPlaylists from 'stepper/hooks/useGetPlaylists';
 import { TransferState } from './transfer.component';
-import { Box, Stack } from '@mui/material';
+import { Box, Grid, Typography, CircularProgress } from '@mui/material';
 import PlaylistTile from './playlist-tile.component';
 import { Playlist, PlaylistItemType } from 'types/playlist-item.types';
 
@@ -12,11 +12,22 @@ const PlaylistSelector: React.FC<{
   const { data, isLoading, isError } = useGetPlaylists(platform);
 
   if (isLoading) {
-    return <>Loading...</>;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (isError) {
-    return <>Error fetching playlist</>;
+    return (
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h6" color="error">Error fetching playlists</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          Please try again later
+        </Typography>
+      </Box>
+    );
   }
 
   const handlePlaylistSelect = (playlist: Playlist, selected: boolean) => {
@@ -104,9 +115,27 @@ const PlaylistSelector: React.FC<{
   console.log(transferState);
 
   return (
-    <Box>
-      <div>Playlist Selector</div>
-      <Stack>
+    <Box sx={{ py: 3 }}>
+      <Typography 
+        variant="h5" 
+        sx={{ 
+          mb: 3, 
+          fontWeight: 600,
+          color: '#1f2937',
+        }}
+      >
+        Select Playlists to Transfer
+      </Typography>
+      <Typography 
+        variant="body2" 
+        sx={{ 
+          mb: 4,
+          color: '#6b7280',
+        }}
+      >
+        Choose entire playlists or expand to select individual tracks
+      </Typography>
+      <Grid container spacing={2}>
         {data?.map((playlist) => {
           const isPlaylistSelected =
             transferState.selectedPlaylist[playlist.id]?.isPlaylistSelected;
@@ -118,9 +147,8 @@ const PlaylistSelector: React.FC<{
                 )
             : [];
           return (
-            <>
+            <Grid item xs={12} key={playlist.id}>
               <PlaylistTile
-                key={playlist.id}
                 platform={platform}
                 playlist={playlist}
                 onPlaylistSelect={handlePlaylistSelect}
@@ -128,10 +156,10 @@ const PlaylistSelector: React.FC<{
                 selectedItems={selectedItems}
                 isSelected={isPlaylistSelected}
               />
-            </>
+            </Grid>
           );
         })}
-      </Stack>
+      </Grid>
     </Box>
   );
 };
