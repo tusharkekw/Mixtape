@@ -2,7 +2,7 @@ import axios from "axios";
 import prisma from "../../lib/prisma";
 import { Request, Response } from "express";
 import { Provider } from "@prisma/client";
-import { refreshAccessToken } from "../auth/auth.service";
+import { checkValidAndRefreshToken } from "../../utils/refreshToken";
 
 export const fetchPlaylist = async (req: Request, res: Response) => {
   try {
@@ -21,13 +21,7 @@ export const fetchPlaylist = async (req: Request, res: Response) => {
     }
 
     //refresh token if expired
-    let accessToken = provider.accessToken;
-    if (!!provider.expiresAt && new Date(provider.expiresAt).getTime() < Date.now()) {
-      const refreshedToken = await refreshAccessToken(provider.id, provider.provider, provider.refreshToken!);
-      if (refreshedToken) {
-        accessToken = refreshedToken;
-      }
-    }
+    let accessToken = await checkValidAndRefreshToken(provider);
 
     if (!accessToken) {
       return res.status(401).json({ success: false, error: "User is not connected to Source platform" });

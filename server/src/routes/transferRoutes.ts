@@ -8,9 +8,6 @@ const router = Router();
 router.post("/start", async (req, res) => {
   const {} = req.body;
   //TODO validate/sanitize the data
-  console.log("converting playlist");
-  console.log("successfully converted playlist");
-
   try {
     const job = await prisma.conversionJob.create({
       data: {

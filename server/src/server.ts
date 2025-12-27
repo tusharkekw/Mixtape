@@ -1,16 +1,14 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import passport from "passport";
-import jwt from "jsonwebtoken";
 import session from "express-session";
 import authRoutes from "./routes/authRoutes";
 import connectRoutes from "./routes/connectRoutes";
 import dotenv from "dotenv";
-import "./auth/google";
+import "./auth/google-strategy";
 import "./auth/passport";
-import "./auth/spotify";
+import "./auth/spotify-strategy";
 import fetchRoutes from "./routes/fetchRoutes";
 import connectPgSimple from "connect-pg-simple";
 import transferRoutes from "./routes/transferRoutes";

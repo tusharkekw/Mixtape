@@ -1,5 +1,17 @@
 import axios from "axios";
-import prisma from "../../lib/prisma";
+import { Provider } from "@prisma/client";
+import prisma from "../lib/prisma";
+
+export const checkValidAndRefreshToken = async (provider: Provider) => {
+  let accessToken = provider.accessToken;
+  if (!!provider.expiresAt && new Date(provider.expiresAt).getTime() < Date.now()) {
+    const refreshedToken = await refreshAccessToken(provider.id, provider.provider, provider.refreshToken!);
+    if (refreshedToken) {
+      accessToken = refreshedToken;
+    }
+  }
+  return accessToken!;
+};
 
 export const refreshAccessToken = async (providerId: string, provider: string, refreshToken: string) => {
   let accessToken, expiresIn;

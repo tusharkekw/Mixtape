@@ -46,7 +46,7 @@ export const fetchPlaylistData = async (req: Request, res: Response) => {
   }
 };
 
-const fetchYoutubePlaylistItems = async (
+export const fetchYoutubePlaylistItems = async (
   playlistId: string,
   accessToken: string
 ): Promise<PlaylistItem[]> => {
@@ -81,7 +81,7 @@ const fetchYoutubePlaylistItems = async (
   }));
 };
 
-const fetchSpotifyPlaylistItems = async (
+export const fetchSpotifyPlaylistItems = async (
   playlistId: string,
   accessToken: string
 ): Promise<PlaylistItem[]> => {
@@ -103,6 +103,7 @@ const fetchSpotifyPlaylistItems = async (
     id: item.track?.id,
     title: item.track?.name,
     thumbnail: item.track?.album?.images?.[0]?.url ?? "",
+    artist: item.track?.artists?.[0].name,
   }));
 };
 
@@ -116,10 +117,12 @@ type SpotifyPlaylistItemsResponse = {
   next?: string;
 };
 
-type PlaylistItem = {
+export type PlaylistItem = {
   id: string;
   title: string;
   thumbnail: string;
+  duration?: number;
+  artist?: string;
 };
 
 type YoutubeItem = {};
