@@ -48,12 +48,12 @@ const addSpotifyTracksBatch = async (
   // Spotify allows up to 100 URIs per request
   // Simple chunking if > 100 (though logic likely handles small batches)
   let url: string = `${BASE_SPOTIFY_URL}/playlists/${playlistId}/tracks`;
-  
+
   // Create chunks of 100
   for (let i = 0; i < itemIds.length; i += 100) {
     const chunk = itemIds.slice(i, i + 100);
-    const spotifyUris = chunk.map(id => `spotify:track:${id}`);
-    
+    const spotifyUris = chunk.map((id) => `spotify:track:${id}`);
+
     await axios.post(
       url,
       {
@@ -67,7 +67,7 @@ const addSpotifyTracksBatch = async (
 };
 
 const searchTrackSpotify = async (accessToken: string, query: string): Promise<string | null> => {
-  let url: string = `${BASE_SPOTIFY_URL}/search?limit=1&q=${encodeURIComponent(query)}&type=track`;
+  let url: string = `${BASE_SPOTIFY_URL}/search?limit=5&q=${encodeURIComponent(query)}&type=track`;
 
   try {
     const response = await axios.get<any>(url, {

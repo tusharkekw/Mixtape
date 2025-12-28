@@ -66,6 +66,7 @@ const fetchGooglePlaylist = async (accessToken: string): Promise<Playlist[]> => 
     title: playlist.snippet.title,
     thumbnail: playlist.snippet?.thumbnails?.high?.url ?? "",
     platform: "google",
+    itemCount: playlist?.contentDetails?.itemCount,
   }));
 };
 
@@ -106,6 +107,9 @@ export type SpotifyPlaylistResponse = {
 
 export type GooglePlaylistItem = {
   id: string;
+  contentDetails?: {
+    itemCount: number;
+  };
   snippet: {
     title: string;
     thumbnails?: {
