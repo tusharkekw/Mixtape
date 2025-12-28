@@ -1,7 +1,10 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Avatar, Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
   return (
     <AppBar 
       position="sticky" 
@@ -14,18 +17,24 @@ const Navbar = () => {
     >
       <Toolbar sx={{ py: 1 }}>
         {/* Left side: Logo */}
-        <Box display="flex" alignItems="center" sx={{ flexGrow: 1 }}>
+        <Box 
+            display="flex" 
+            alignItems="center" 
+            sx={{ flexGrow: 1, cursor: 'pointer' }}
+            onClick={() => navigate('/')}
+        >
           <Typography 
             variant="h5" 
             fontWeight={700}
             sx={{ 
-              color: '#1f2937',
+              color: '#1f2937', 
               letterSpacing: '-0.02em',
             }}
           >
             Mixtape
           </Typography>
         </Box>
+        {/* Right side: Navigation Items can go here */}
       </Toolbar>
     </AppBar>
   );

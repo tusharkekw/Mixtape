@@ -1,5 +1,5 @@
 import LoginScreen from 'Login/login.component';
-import MainScreen from 'main/components/home-screen.component';
+import LandingPage from 'main/components/landing-page.component';
 import ProtectedRoute from 'main/components/protected-route.component';
 import UnAuthenticatedRoute from 'main/components/unauthenticated-route.component';
 import { Route, Routes } from 'react-router-dom';
@@ -10,7 +10,7 @@ const AppRouter = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<MainScreen />}></Route>
+        <Route path="/" element={<LandingPage />}></Route>
         <Route path="/login" element={<UnAuthenticatedRoute element={<LoginScreen />} />} />
         <Route
           path="/transfer"
