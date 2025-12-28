@@ -38,104 +38,144 @@ export const processConversionLogic = async (job: ConversionJob) => {
 
     await updateJobProgress(job.id, 5);
 
-    let convertedTracks = 0;
     let totalTracksToBeConverted = 0;
-    Object.values(selectedPlaylist)?.forEach((p) =>
-      p.selectedItems.length === 0
-        ? (totalTracksToBeConverted += p.playlistData.itemCount)
-        : (totalTracksToBeConverted += p.selectedItems.length ?? 0)
-    );
+    Object.values(selectedPlaylist).forEach((p) => {
+      totalTracksToBeConverted += p.selectedItems.length > 0 
+        ? p.selectedItems.length 
+        : p.playlistData.itemCount;
+    });
+
+    let convertedTracksCount = 0;
+
+    const updateProgress = async () => {
+      const percentage = Math.min(99, Math.round((convertedTracksCount / totalTracksToBeConverted) * 95) + 5);
+      await updateJobProgress(job.id, percentage);
+    };
 
     if (transferMode === "individual") {
       for (let playlist of Object.values(selectedPlaylist)) {
         const { playlistData, selectedItems } = playlist;
+        
         const destinationPlaylistId = await destinationAdapter.createPlaylist(
           destinationAccessToken,
           destinationProvider.providerUserId,
           playlistData.title
         );
-        console.log("created destination playlist", destinationPlaylistId);
 
-        let itemsToBeConverted;
-        if (!!selectedItems.length) {
-          //already have the items for this playlist
-          itemsToBeConverted = selectedItems;
-        } else {
-          // -> fetch playlistItems if complete playlist is selected
-          itemsToBeConverted = await sourceAdapter.getPlaylistTracks(sourceAccessToken, playlistData.id);
+        let itemsToTransfer = selectedItems;
+        if (itemsToTransfer.length === 0) {
+           itemsToTransfer = await sourceAdapter.getPlaylistTracks(sourceAccessToken, playlistData.id);
         }
 
-        // -> iterate over playlistItems
-        for (let item of itemsToBeConverted) {
-          // -> search for same item on destination platform
-          const query = item.title + " " + (item?.artist ?? "");
-          let destinationItemId = await destinationAdapter.searchTrack(destinationAccessToken, query);
-          // -> add to destination playlist
-
-          await destinationAdapter.addTracksToPlaylist(
-            destinationAccessToken,
-            destinationPlaylistId,
-            destinationItemId
-          );
-
-          console.log("added track");
-          convertedTracks++;
-
-          if (convertedTracks % 5 === 0) {
-            updateJobProgress(job.id, (convertedTracks / totalTracksToBeConverted) * 100);
+        await transferItems(
+          itemsToTransfer, 
+          destinationAdapter, 
+          destinationAccessToken, 
+          destinationPlaylistId,
+          (count) => {
+             convertedTracksCount += count;
+             if (convertedTracksCount % 5 === 0) updateProgress();
           }
-        }
+        );
       }
     } else {
-      // 'unified'
-      // -> iterate over playlist and cumulate tracks
-      //
-      let items: any = [];
-      for (let playlist of Object.values(selectedPlaylist)) {
-        const { selectedItems, playlistData } = playlist;
-        if (!!selectedItems.length) {
-          items = [...items, ...selectedItems];
-        } else {
-          const playlistItems = await sourceAdapter.getPlaylistTracks(sourceAccessToken, playlistData.id);
-          items = [...items, ...playlistItems];
-        }
-      }
-      // -> create new playlist with playlisName
       const destinationPlaylistId = await destinationAdapter.createPlaylist(
         destinationAccessToken,
         destinationProvider.providerUserId,
-        playlistName
+        playlistName || "Unified Mixtape"
       );
 
-      console.log("created destination playlist", destinationPlaylistId);
-
-      // -> add to that playlist
-      for (const item of items) {
-        const query = item.title + " " + item.artist;
-        const destinationItemId = await destinationAdapter.searchTrack(destinationAccessToken, query);
-        await destinationAdapter.addTracksToPlaylist(
-          destinationAccessToken,
-          destinationPlaylistId,
-          destinationItemId
-        );
-        console.log("added track");
-        convertedTracks++;
-        if (convertedTracks % 5 === 0) {
-          updateJobProgress(job.id, (convertedTracks / totalTracksToBeConverted) * 100);
+      for (let playlist of Object.values(selectedPlaylist)) {
+        const { playlistData, selectedItems } = playlist;
+        let itemsToTransfer = selectedItems;
+        if (itemsToTransfer.length === 0) {
+           itemsToTransfer = await sourceAdapter.getPlaylistTracks(sourceAccessToken, playlistData.id);
         }
+
+        await transferItems(
+          itemsToTransfer, 
+          destinationAdapter, 
+          destinationAccessToken, 
+          destinationPlaylistId,
+          (count) => {
+             convertedTracksCount += count;
+             if (convertedTracksCount % 5 === 0) updateProgress();
+          }
+        );
       }
     }
 
-    updateJobProgress(job.id, (convertedTracks / totalTracksToBeConverted) * 100);
+    await updateJobProgress(job.id, 100);
+    await prisma.conversionJob.update({
+        where: { id: job.id },
+        data: { status: "COMPLETED", result: "Success" },
+    });
+
   } catch (error) {
+    console.error("Conversion failed", error);
     await prisma.conversionJob.update({
       where: { id: job.id },
       data: { status: "FAILED", result: (error as Error).message },
     });
-
-    throw error;
   }
 };
+
+import { pMap } from "../../utils/concurrency";
+import { PlaylistItem } from "../playlist/playlist-item.service";
+
+async function transferItems(
+  items: PlaylistItem[],
+  adapter: PlatformAdapter,
+  token: string,
+  playlistId: string,
+  onProgress: (count: number) => void
+) {
+  // 1. Search in Parallel (Concurrency 2)
+  // We map items to their destination IDs (or null)
+  const searchResults = await pMap(items, async (item) => {
+    const query = `${item.title} ${item.artist || ""}`;
+    try {
+      const destId = await adapter.searchTrack(token, query);
+      return destId;
+    } catch (e) {
+      console.log(`Failed to search ${query}`, e);
+      return null;
+    }
+  }, 2);
+
+  const foundIds = searchResults.filter((id): id is string => !!id);
+  const missedCount = items.length - foundIds.length;
+  if(missedCount > 0) console.log(`Skipped ${missedCount} tracks (not found)`);
+
+  // 2. Add to Playlist (Batch if possible, else Parallel)
+  if (adapter.addTracksToPlaylistBatch && foundIds.length > 0) {
+    try {
+        await adapter.addTracksToPlaylistBatch(token, playlistId, foundIds);
+        onProgress(foundIds.length);
+    } catch (e) {
+        console.error("Batch add failed", e);
+        // Fallback to individual? Or just fail.
+    }
+  } else {
+    // Parallel add (Concurrency 3 to be safe with rate limits on mutations)
+    await pMap(foundIds, async (id) => {
+       try {
+         await adapter.addTracksToPlaylist(token, playlistId, id);
+         onProgress(1); // Increment progress per track
+       } catch (e) {
+         console.error(`Failed to add track ${id}`, e);
+       }
+    }, 3);
+  }
+  
+  // If we batched, we already called onProgress with full count.
+  // If individual, we called it per track.
+  // However, missed tracks should also count towards "processed" so the progress bar finishes?
+  // Current logic: totalTracksToBeConverted based on Source.
+  // If we skip tracks, we should technically increment "convertedTracksCount" (or "processedTracksCount")
+  // so safe to just add missedCount to progress
+  if (missedCount > 0) onProgress(missedCount);
+}
 
 const ADAPTER_REGISTRY: Record<Platform, PlatformAdapter> = {
   spotify: SpotifyAdapter,

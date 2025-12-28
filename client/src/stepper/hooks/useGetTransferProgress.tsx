@@ -6,7 +6,7 @@ const useGetTransferProgress = (jobId: string) => {
     queryKey: ['transfer-progress', jobId],
     queryFn: () => getTransferProgress(jobId),
     enabled: !!jobId,
-    refetchInterval: (query) => (!!query.state?.data?.isJobCompleted ? 2_000 : false),
+    refetchInterval: (query) => (!!query.state?.data?.isJobCompleted ? 500 : false),
   });
 };
 

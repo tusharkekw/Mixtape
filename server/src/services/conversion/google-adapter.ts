@@ -9,7 +9,7 @@ export const GoogleAdapter: PlatformAdapter = {
   getPlaylistTracks: function (accessToken: string, playlistId: string): Promise<PlaylistItem[]> {
     return fetchYoutubePlaylistItems(playlistId, accessToken);
   },
-  searchTrack: function (accessToken: string, query: string): Promise<string> {
+  searchTrack: function (accessToken: string, query: string): Promise<string | null> {
     return searchGoogleTrack(accessToken, query);
   },
   createPlaylist: function (
@@ -80,14 +80,18 @@ const createYoutubePlaylist = async (accessToken: string, playlistName: string):
   return playlistId;
 };
 
-const searchGoogleTrack = async (accessToken: string, query: string): Promise<string> => {
-  let url: string = `${BASE_GOOGLE_URL}/search?maxResults=5&q=${query}`;
+const searchGoogleTrack = async (accessToken: string, query: string): Promise<string | null> => {
+  let url: string = `${BASE_GOOGLE_URL}/search?maxResults=1&q=${encodeURIComponent(query)}&type=video`;
 
-  const response = await axios.get(url, {
-    headers: getHeaders(accessToken),
-  });
+  try {
+    const response = await axios.get(url, {
+      headers: getHeaders(accessToken),
+    });
 
-  const topHitTrackId = response.data?.items?.[0]?.id?.videoId;
-
-  return topHitTrackId;
+    const topHitTrackId = response.data?.items?.[0]?.id?.videoId;
+    return topHitTrackId || null;
+  } catch (error) {
+    console.error(`Google Search failed for "${query}":`, error);
+    return null;
+  }
 };
