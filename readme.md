@@ -16,7 +16,6 @@ Mixtape is a Web App that lets you transfers playlists from one music platform t
 - Google Cloud Tasks manages background execution
 - Workers process playlist transfers independently
 
-```mermaid
 flowchart LR
     U[User] -->|Initiates transfer| FE[React Frontend]
     FE -->|POST /transfer| API[Express API]
